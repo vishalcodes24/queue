@@ -1,0 +1,70 @@
+#include <iostream>
+#include <queue>
+
+// Typedef for a job with ID and size
+typedef struct Job {
+    int id;
+    int size;
+} Job;
+
+// Function prototypes for queue operations (using std::queue)
+bool empty(const std::queue<Job>& q);
+void enqueue(std::queue<Job>& q, const Job& job);
+Job front(const std::queue<Job>& q);
+void dequeue(std::queue<Job>& q);
+
+// Round Robin scheduling function
+void roundRobin(std::queue<Job>& jobs, int timeSlice) {
+    while (!empty(jobs)) {
+        Job currentJob = front(jobs);
+        dequeue(jobs);
+
+        // Process the job for the time slice or remaining size, whichever is less
+        int timeTaken = std::min(timeSlice, currentJob.size);
+        currentJob.size -= timeTaken;
+
+        std::cout << "Job " << currentJob.id << " processed for " << timeTaken << " units\n";
+
+        // If the job is not finished, add it back to the queue
+        if (currentJob.size > 0) {
+            enqueue(jobs, currentJob);
+        }
+    }
+
+    std::cout << "All jobs completed!\n";
+}
+
+// Implementations for queue operations (using std::queue)
+bool empty(const std::queue<Job>& q) {
+    return q.empty();
+}
+
+void enqueue(std::queue<Job>& q, const Job& job) {
+    q.push(job);
+}
+
+Job front(const std::queue<Job>& q) {
+    if (empty(q)) {
+        return Job{-1, -1}; // Return invalid job for empty queue
+    }
+    return q.front();
+}
+
+void dequeue(std::queue<Job>& q) {
+    q.pop();
+}
+
+int main() {
+    std::queue<Job> jobs;
+
+    // Sample jobs (modify as needed)
+    jobs.push({1, 10});
+    jobs.push({2, 5});
+    jobs.push({3, 8});
+
+    int timeSlice = 4;
+
+    roundRobin(jobs, timeSlice);
+
+    return 0;
+}
